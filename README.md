@@ -8,6 +8,7 @@ The webapp will utilize the OpenWeather API to display a 5-day weather forecast 
 ## Lessons Learned
 
 
+
 ## Installation
 
 This webapp utilizes your web browser already. No installation neccessary.
