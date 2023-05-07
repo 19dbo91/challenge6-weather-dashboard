@@ -4,22 +4,79 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>Weather Dashboard by Dustin Bonilla</title>
         <!-- Link other CSS Here -->
+        <script src="https://cdn.tailwindcss.com"></script>
         <!-- end -->
         <link rel="stylesheet" href="./assets/css/style.css"/>
     </head>
-    <body>
-        <header>
-
+    <body class="bg-amber-100">
+        <header class="bg-blue-700 justify-items-center">
+            <h1 class="text-white py-5">Weather Dashboard</h1>            
         </header>
-        <main>
+        <main class="grid grid-cols-1 gap-3 md:grid-cols-2 m-5">
+            <section id="search" class="bg-gray-300 py-10 flex flex-col">
+                <!--search bar and search button-->
+                <form id="search-query"class="grid grid-rows-3 gap-2 m-2">
+                    <input class ="m-2" placeholder="Type in a city"></input>
+                    <button class="m-2 bg-red-300">Search</button>
+                    <select class="m-2" name="" id="">
+                        <option value="standard">Standard</option>
+                        <option value="metric">Metric</option>
+                        <option value="imperial">Imperial</option>
+                    </select>
+                </form>
+                <hr class="m-5"/>
+                <section id="search-history">
+                    
+                </section>
 
+            </section>
+            <section id="display" class="grid grid-cols-5 gap-1 bg-emerald-300 py-10">
+                <ul id="1" class="col-span-5 bg-indigo-300 col-span 6 rounded-lg shadow-lg m-2 p-1">
+                    <li data-type="date"></li>
+                    <li data-type="temperature"></li>
+                    <li data-type="wind-speed"></li>
+                    <li data-type="humidity"></li>
+                </ul>
+                <ul id="2"class="bg-stone-500 rounded-lg shadow-lg ml-2 p-1">
+                    <li data-type="date"></li>
+                    <li data-type="temperature"></li>
+                    <li data-type="wind-speed"></li>
+                    <li data-type="humidity"></li>
+                </ul>
+                <ul id="3"class="bg-stone-400 rounded-lg shadow-lg mx-1 p-1">
+                    <li data-type="date"></li>
+                    <li data-type="temperature"></li>
+                    <li data-type="wind-speed"></li>
+                    <li data-type="humidity"></li>
+                </ul>
+                <ul id="4"class="bg-stone-300 rounded-lg shadow-lg mx-1 p-1">
+                    <li data-type="date"></li>
+                    <li data-type="temperature"></li>
+                    <li data-type="wind-speed"></li>
+                    <li data-type="humidity"></li>
+                </ul>
+                <ul id="5"class="bg-stone-200 rounded-lg shadow-lg mx-1 p-1">
+                    <li data-type="date"></li>
+                    <li data-type="temperature"></li>
+                    <li data-type="wind-speed"></li>
+                    <li data-type="humidity"></li>
+                </ul>
+                <ul id="6"class="bg-stone-100 rounded-md shadow-md mr-2 p-1">
+                    <li data-type="date"></li>
+                    <li data-type="temperature"></li>
+                    <li data-type="wind-speed"></li>
+                    <li data-type="humidity"></li>
+                </ul>
+            </section>
         </main>
         <footer>
             
         </footer>
         <!-- Link other JS Here -->
+        <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
         <!-- end -->
         <script src="./assets/scripts/script.js"></script>
     </body>
