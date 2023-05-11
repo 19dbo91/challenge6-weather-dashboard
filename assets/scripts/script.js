@@ -1,6 +1,6 @@
 // #region METACODE
 // Author: Dustin Bonilla
-// Project Name: 
+// Project Name: Weather Dashboard
 // Acitve APIs: https://openweathermap.org/forecast5
 
 /*      USER STORY
@@ -18,11 +18,11 @@
  *_______________________________________________________________________________
  * .: a weather dashboard with form inputs
  * 
- * @ search for a city //TODO(2)
+ * @ search for a city // // TODO(2)
  *  >  presented w/ current and future conditions for that city
  *  >  that city is added to the search history
  * 
- * @ view CURRENT weather conditions for that city //TODO(1)
+ * @ view CURRENT weather conditions for that city // // TODO(1)
  *  >  presented w/
  *  >>  city name
  *  >>  date
@@ -31,7 +31,7 @@
  *  >>  humidity
  *  >>  wind speed
  * 
- * @ view !FUTURE weather conditions for that city //TODO(1)
+ * @ view !FUTURE weather conditions for that city // // TODO(1)
  *  >  presented w/ a 5-day forecast that displays 
  *  >>  date
  *  >>  icon representation of weather conditions
@@ -39,14 +39,14 @@
  *  >> wind speed
  *  >>  humidity
  *
- * @ click on a city in the search history //TODO(1)
+ * @ click on a city in the search history // // TODO(1)
  *  >  again presented w/ current and future conditions for that city
  * 
 */
 
 /*      MOCK UP NOTES
  *_______________________________________________________________________________
- * 
+ *
  * 
 */
 
@@ -77,22 +77,42 @@
  * I am reminded that making an array of the same object(same place in memory)
  * will just make an array all pointing to that memory and not new reference
  * 
- * 
- * Using free plan per <https://openweathermap.org/full-price#current>
- * Referring to API Doc <https://openweathermap.org/forecast5>
- * URL api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
- * Example of icon: https://openweathermap.org/img/wn/03d@2x.png
- * 
- * Limitations: query won't go higher than 40 searches
- *      Displaying todays and +5 is not feasible with current api calls
- *      Will have to drop last card and adjust spacing
- *
- * 
- * REFERENCES:
+ */ 
+
+ /* LIMITATIONS
+ * - API query won't go higher than 40 searches
+ * --- Displaying todays and +5 days weather is not feasible with current api calls
+ * --- Will have to drop last card and adjust spacing
+ * - also that means I'll have to access the array at a day's interval apart. 3*8 to get the daily report
+ */
+
+ /* REFERENCES:
  * - tons of MDN articles
  * - tons of w3School articles
+ * - https://www.makeuseof.com/jquery-create-element/
+ * 
+ * - Free tier utilized in OpenWeather API <https://openweathermap.org/full-price#current>
+ * - Referring to API Doc <https://openweathermap.org/forecast5>
+ * - Query used: <api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}>
+ * - Icon src example: https://openweathermap.org/img/wn/03d@2x.png
+ * 
+ */ 
+ 
+ /* //TODO: IDEAS FOR IMPROVEMENTS/LATER ITERATION
+ * - Potential future case: metrics could select menu below
+ * - Should have read the API doc better... Needed to just use one api instead of two for
+ * --- I used geocode call for API since i originally didn't see the one that calls city
+ * --- this one better: <api.openweathermap.org/data/2.5/forecast?q={city name}&appid={API key}>
+ * //! on further discussion this actually fine. Jared mentioned it may be better to use this
+ * //! Marinah mentioned time before returned may be substantially long depending on your 
+ * - Could have used await in conjunction with API calls to reduce nesting function calls
+ * - There was probably a better way to handle the contents of the search history on the JS side.
+ * - there is probably a better object-oriented solution for passing error messages.
+ * --- relegated most focus on the other lines as that is a higher priority
 */
 // #endregion
+
+//!Will not leave API key in due to security concerns. User will provide key accessible by Canvas submission or thru signing up on openWeather Api
 
 //!start
 
@@ -101,11 +121,23 @@ function p(me){console.log(me);}
 
 
 //#region Variable declaration
-const apiKey = "&appid="  //TODO: how do I handle hidden API key
+let apiKey = "&appid="
 const pathGeocode="http://api.openweathermap.org/geo/1.0/direct";
 const pathForecast="https://api.openweathermap.org/data/2.5/forecast";
+const pathIcon = "https://openweathermap.org/img/wn/";
+const fileIcon = "@2x.png"
 const dateFormat = 'M/DD/YYYY';
 
+
+const weatherColor ={
+    Clear:"bg-indigo-300",
+    Clouds: "bg-stone-500",
+    Drizzle: "bg-sky-400",
+    Rain: "bg-sky-600",
+    Thunderstorm: "bg-yellow-300",
+    Snow: "bg-purple-500",
+    Caution: "bg-pink-300" //covers the Group 7, many main
+}
 
 class weatherObject {
     constructor(dt, temp, wSpd, hum, wethArr){
@@ -122,6 +154,7 @@ let cityString = "";
 let locationObject = [];
 let forecastObject={};
 let forecastDataArr=[];
+let historyArr=[];
 
 //#endregion 
 
@@ -138,11 +171,15 @@ function parseCoordinate(degreeNum){
 }// preserves 2 significant digits past the decimal
 
 function saveData(key,value){ localStorage.setItem(key,value); }
-function loadData(key){ localStorage.geyItem(key); }
 //#endregion
 
 
-//#region Search //TODO(5)
+//#region Search Button //TODO(3)
+function getKey(){
+    return $("#key").val().trim();
+    // KEY FOUND IN SUBMISSION PAGE!!
+}// don't clear box for multiple entries
+
 function reset(){
     cityString = "";
     locationObject = [];
@@ -154,10 +191,10 @@ function getInput(){
     let input = $("#search-box").val().trim();
     if (input){
         p(`user put in ${input}`);
-        $("#search-box").val(""); //clear
+        $("#search-box").val("").trim; //clear
         return input;
     }
-} //clears trimmed input and passes value if exists  //TODO: validate input
+} //clears trimmed input and passes value if exists  //TODO: better validation of input
 
 $("#search-button").on("click", function(e){
     e.preventDefault();
@@ -165,8 +202,7 @@ $("#search-button").on("click", function(e){
     if (cityString){
         p("Getting location data...");
         getDirectGeocode();
-        //!Do NOT put any critical function after fetch...delay cause issue
-        
+        //!Putting code reliant on directGeocode/on critical path causes reference errors when promise in prog
         p("Clearing search...")
         cityString=""; 
     }
@@ -174,7 +210,8 @@ $("#search-button").on("click", function(e){
 
 function getDirectGeocode(){
     let queryGeocode = `?q=${cityString}`;
-    let URL = encodeURI(pathGeocode+queryGeocode+apiKey);
+    if(getKey()){
+    let URL = encodeURI(pathGeocode+queryGeocode+apiKey+getKey());
     p(`Attempting to connect to ${URL}`)
 
     fetch(URL)
@@ -197,20 +234,20 @@ function getDirectGeocode(){
             p("Getting forecast data for next 5 days...");
             getWeatherForecast();
         });
+    }else{console.error("Did not see API Key; Please try again");}
     //end of fetch
-}// waits for API call and then assigns location object 
+}// waits for API call and then assigns location object //TODO: deprecate for other api call in notes above
 
-//! Push this to new line for testing: locationObject=testCity;
-p(locationObject)
+//! Push this to new line for testing: locationObject=testCity;p(locationObject);
 
 function getWeatherForecast(){
     let longitude = parseCoordinate(locationObject[0].lon);
     let latitude = parseCoordinate(locationObject[0].lat);
     p("Passing coordinates - lon:"+longitude+", lat:"+latitude);
     
-    let queryForecast = `?lat=${latitude}&lon=${longitude}`;
+    let queryForecast = `?lat=${latitude}&lon=${longitude}`;        //TODO see getDirectGeocode note
     let queryCount="&cnt=48"
-    let URL = encodeURI(pathForecast+queryForecast+queryCount+apiKey); p(URL);
+    let URL = encodeURI(pathForecast+queryForecast+queryCount+apiKey+getKey()); p(URL);
 
     fetch(URL)
     .then(function(response){
@@ -230,18 +267,16 @@ function getWeatherForecast(){
         copyData()
         saveData(locationObject[0].name, JSON.stringify(forecastDataArr))
         updateForecast(forecastDataArr);
+        createHistory(locationObject[0].name)
     });
 } //waits for API call and then saves and displays called data
 
-//! Push this to new line for testing: forecastObject=testData;
-p(forecastObject)
+//! Push this to new line for testing: forecastObject=testData;p(forecastObject);
 
 function copyData(){
     forecastDataArr=[]; //reset
     let rawDataArr = forecastObject.list;
 
-    // data pts are given at every 3hr interval
-    // this program will only use
     for (i=0;i<5;i++){
         let date = dayjs.unix(rawDataArr[i*8].dt).format(dateFormat);
         let temp = rawDataArr[i*8].main.temp;
@@ -250,42 +285,70 @@ function copyData(){
         let weather = rawDataArr[i*8].weather;
         let tempObj = new weatherObject(date, temp, wind, humidity, weather);
         forecastDataArr.push(tempObj);
-    }//data from arr is given at every 3hr interval; thus why we call every 8th obj in the array to get the next days
+    }//see LIMITATIONS regarding i*8
     console.log(forecastDataArr);
 }
+//#endregion
 
+//#region Search History //TODO(2)
+function createHistory(cityName){
+    let newHistoryBtn= $('<button class="m-2 history"></button>');
+    $("#search-history").prepend(newHistoryBtn);
+    newHistoryBtn.text(cityName);
+    newHistoryBtn.attr("data-city",cityName);
+    newHistoryBtn.attr("data-date",dayjs().format(dateFormat));
+    newHistoryBtn.on("click", function(){
+        displayHistory(newHistoryBtn)
+    })
+}
 
-
-//TODO: search history
-
-
+function displayHistory(tag){
+    let today=dayjs().format(dateFormat)
+    let createdDate=tag.data("date")
+    let city = tag.data("city");
+    let savedData=localStorage.getItem(city);
+    
+    if(savedData && (createdDate==today)){
+        p("found and loading data...")
+        updateForecast(JSON.parse(savedData));
+    }else{
+        console.error("This case shouldn't happen... how did you delete the value and not the key?")
+    }
+    
+}
 //#endregion
 
 //#region Display //TODO(2)
 
 function updateCardData(cardObj, dataObj){
-    let cardDataList = cardObj.children(); 
+    let cardDataList = cardObj.children();
+    let iconURL = pathIcon+dataObj.weather[0].icon+fileIcon;
+
     cardDataList.eq(0).text(dataObj.date);
     cardDataList.eq(1).text(dataObj.temperature);
     cardDataList.eq(2).text(dataObj.wind);
     cardDataList.eq(3).text(dataObj.humidity);
-}
+    cardDataList.eq(4).attr("src",iconURL).attr("alt","It looks like this day will have "+dataObj.weather[0].description);
+    
+    let category = dataObj.weather[0].main;
+    if(weatherColor[category]){
+        cardObj.addClass(weatherColor[category]);
+    }else{cardObj.addClass(weatherColor["Caution"]);}
+
+}//TODO: Add icon functions
 
 function updateForecast(newDataArr){
     let currentCard ="";
-    for (i=0; i<= 5; i++){
+    for (i=0; i< 5; i++){
         currentCard = display.children().eq(i);
         //p(currentCard);
+        p(newDataArr[i])
         updateCardData(currentCard, newDataArr[i]); 
     }
 }
 
-
-//copyData();
-//updateForecast(forecastDataArr);
-
 //TODO: updateCity
-//TODO pass location.name -> before date on first child
+//TODO prepend location.name -> first child
 
 
 //#endregion
