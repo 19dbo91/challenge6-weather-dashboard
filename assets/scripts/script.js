@@ -122,7 +122,7 @@ function p(me){console.log(me);}
 
 //#region Variable declaration
 let apiKey = "&appid="
-const pathGeocode="http://api.openweathermap.org/geo/1.0/direct";
+const pathGeocode="https://api.openweathermap.org/geo/1.0/direct";
 const pathForecast="https://api.openweathermap.org/data/2.5/forecast";
 const pathIcon = "https://openweathermap.org/img/wn/";
 const fileIcon = "@2x.png"
