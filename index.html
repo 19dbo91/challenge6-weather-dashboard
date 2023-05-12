@@ -7,26 +7,31 @@
         <title>Weather Dashboard by Dustin Bonilla</title>
         <!-- Link other CSS Here -->
         <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap" rel="stylesheet">
         <!-- end -->
         <link rel="stylesheet" href="./assets/css/style.css"/>
     </head>
     <body class="bg-gray-100">
         <header class="bg-indigo-950 justify-items-center">
-            <h1 class="text-white font-bold py-5">Weather Dashboard</h1>            
+            <h1 class="text-white font-extrabold p-5">Weather Dashboard</h1>  
+            <h2 class="flex m-2 p-1 justify-center font-bold bg-gray-200"></h2>          
         </header>
         <main class="grid grid-cols-1 gap-3 md:grid-cols-2 m-5">
             <section id="search" class="bg-gray-300 py-10 flex flex-col">
                 <!--search bar and search button-->
                 <form id="search-query"class="grid grid-rows-3 gap-2 m-2">
-                    <input id="search-box" class ="m-2" placeholder="Type in a city"></input>
-                    <button id="search-button" class="m-2 rounded-lg bg-blue-600 text-white">Search</button>
-                    <input id="key" class ="m-2" placeholder="API Key"></input>
+                    <input id="search-box" class ="bg-gray-300 m-2 shadow-inner" placeholder="Type in a city"></input>
+                    <button id="search-button" class="flex justify-start rounded-lg bg-indigo-950 px-3 m-2 text-white">Search</button>
+                    <input id="key" class ="m-2 bg-gray-300 shadow-inner" placeholder="API Key"></input>
                 </form>
                 <hr class="m-5"/>
                 <section id="search-history" class="bg-gray-400 grid">
                 </section>
             </section>
-            <section id="display" class="grid grid-cols-4 gap-1 bg-gray-200 py-10">
+            
+            <section id="display" class="grid grid-cols-4 gap-1 bg-gray-300 py-10">
                 <ul id="1" class="col-span-4 rounded-lg shadow-lg m-2 p-1 transition-colors duration-1000">
                     <li data-type="date"></li>
                     <li data-type="temperature"></li>

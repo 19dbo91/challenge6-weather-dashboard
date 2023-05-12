@@ -140,7 +140,8 @@ const weatherColor ={
 }
 
 class weatherObject {
-    constructor(dt, temp, wSpd, hum, wethArr){
+    constructor(ct, dt, temp, wSpd, hum, wethArr){
+        this.city = ct;
         this.date= dt;          //Expecting: day    -> Display: per const 'dateFormat'
         this.temperature= temp; //Expecting: number -> Default: Kelvin; Display: degFarenheit,
         this.wind = wSpd;       //Expecting: number -> Default: meter/second; Display: MPH,
@@ -174,11 +175,11 @@ function saveData(key,value){ localStorage.setItem(key,value); }
 //#endregion
 
 
-//#region Search Button //TODO(3)
+//#region Search Button // // TODO()
 function getKey(){
     return $("#key").val().trim();
-    // KEY FOUND IN SUBMISSION PAGE!!
-}// don't clear box for multiple entries
+    
+}// don't clear box for multiple entries //!! KEY FOUND IN SUBMISSION PAGE!!
 
 function reset(){
     cityString = "";
@@ -236,7 +237,7 @@ function getDirectGeocode(){
         });
     }else{console.error("Did not see API Key; Please try again");}
     //end of fetch
-}// waits for API call and then assigns location object //TODO: deprecate for other api call in notes above
+}// waits for API call and then assigns location object
 
 //! Push this to new line for testing: locationObject=testCity;p(locationObject);
 
@@ -245,7 +246,7 @@ function getWeatherForecast(){
     let latitude = parseCoordinate(locationObject[0].lat);
     p("Passing coordinates - lon:"+longitude+", lat:"+latitude);
     
-    let queryForecast = `?lat=${latitude}&lon=${longitude}`;        //TODO see getDirectGeocode note
+    let queryForecast = `?lat=${latitude}&lon=${longitude}`;
     let queryCount="&cnt=48"
     let URL = encodeURI(pathForecast+queryForecast+queryCount+apiKey+getKey()); p(URL);
 
@@ -278,19 +279,20 @@ function copyData(){
     let rawDataArr = forecastObject.list;
 
     for (i=0;i<5;i++){
+        let city = locationObject[0].name;
         let date = dayjs.unix(rawDataArr[i*8].dt).format(dateFormat);
         let temp = rawDataArr[i*8].main.temp;
         let wind = rawDataArr[i*8].wind.speed;
         let humidity= rawDataArr[i*8].main.humidity;
         let weather = rawDataArr[i*8].weather;
-        let tempObj = new weatherObject(date, temp, wind, humidity, weather);
+        let tempObj = new weatherObject(city, date, temp, wind, humidity, weather);
         forecastDataArr.push(tempObj);
     }//see LIMITATIONS regarding i*8
     console.log(forecastDataArr);
 }
 //#endregion
 
-//#region Search History //TODO(2)
+//#region Search History // // TODO()
 function createHistory(cityName){
     let newHistoryBtn= $('<button class="m-2 history"></button>');
     $("#search-history").prepend(newHistoryBtn);
@@ -318,12 +320,11 @@ function displayHistory(tag){
 }
 //#endregion
 
-//#region Display //TODO(2)
+//#region Display //TODO(1)
 
 function updateCardData(cardObj, dataObj){
     let cardDataList = cardObj.children();
     let iconURL = pathIcon+dataObj.weather[0].icon+fileIcon;
-
     cardDataList.eq(0).text(dataObj.date);
     cardDataList.eq(1).text(dataObj.temperature);
     cardDataList.eq(2).text(dataObj.wind);
@@ -335,7 +336,7 @@ function updateCardData(cardObj, dataObj){
         cardObj.addClass(weatherColor[category]);
     }else{cardObj.addClass(weatherColor["Caution"]);}
 
-}//TODO: Add icon functions
+}
 
 function updateForecast(newDataArr){
     let currentCard ="";
@@ -345,11 +346,16 @@ function updateForecast(newDataArr){
         p(newDataArr[i])
         updateCardData(currentCard, newDataArr[i]); 
     }
+    updateCity(newDataArr[0]) //basically grabs the last card
 }
 
-//TODO: updateCity
-//TODO prepend location.name -> first child
 
+function updateCity(cardObj){
+        p(cardObj)
+        $("h2").text(cardObj.city)
+        p("Updated weatherboard to show "+$("h2").text())
+        $("title").text(`Weather Dashboard - ${cardObj.city}`)
+}
 
 //#endregion
 
